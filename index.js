@@ -62,7 +62,7 @@ async function main() {
 	await handle_input(async input => {
 		const words = word_search(input);
 
-		console.log(words.join("\n"), words);
+		console.log(words);
 	});
 }
 
