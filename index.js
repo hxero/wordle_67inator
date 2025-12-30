@@ -1,13 +1,13 @@
-import { readFile } from "node:fs/promises";
-import { createInterface } from "node:readline/promises";
+const file_system = require("fs/promises");
+const read_line = require("readline/promises");
 
-const read_line = createInterface({
+const rl = read_line.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
 
 async function handle_input(callback) {
-	await callback(await read_line.question(""));
+	await callback(await rl.question(""));
 	await handle_input(callback);
 }
 
@@ -39,13 +39,14 @@ function match_pattern_soft(word, target, pattern) {
 }
 
 async function main() {
-	const words_list = await readFile("./words.csv", "utf-8");
+	const words_list = await file_system.readFile("./words.csv", "utf-8");
 	const dictionary = words_list.trim().toLowerCase().split("\n");
 
 	function word_search(target) {
 		const patterns = ["__xxx", "xxx_x", "x___x", "xxx_x", "x_x__", "xxx__"];
 		const found = [];
 
+		let index = 0;
 		for (const pattern of patterns) {
 			let matches = dictionary.filter(word => match_pattern(target, word, pattern));
 
@@ -53,7 +54,8 @@ async function main() {
 				matches = dictionary.filter(word => match_pattern_soft(target, word, pattern));
 			}
 
-			found[pattern] = matches;
+			found[index] = matches;
+			index++;
 		}
 
 		return found;
@@ -62,7 +64,11 @@ async function main() {
 	await handle_input(async input => {
 		const words = word_search(input);
 
-		console.log(words);
+		console.log(
+			//words,
+			"\n",
+			words.map((word, index) => `${index}: ${word.slice(0, 5).join(", ")}`)
+		);
 	});
 }
 
